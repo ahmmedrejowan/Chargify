@@ -5,10 +5,17 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -33,9 +40,59 @@ import com.rejowan.battify.ui.theme.AppTheme
 @Composable
 fun MainScreen() {
 
+    var isCharging by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding)) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .size(200.dp)
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .border(5.dp, Color.White, CircleShape)
+                ) {
+                    WaveProgress(
+                        progress = 0.5f,
+                        modifier = Modifier.fillMaxSize(),
+                        fillBrush = Brush.horizontalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
+                            )
+                        ),
+                        waveDirection = WaveDirection.RIGHT,
+                        amplitudeRange = 20f..50f,
+                        waveFrequency = 3,
+                        waveSteps = 20,
+                        phaseShiftDuration = 2000,
+                        amplitudeDuration = 2000,
+                        isCharging = isCharging
+                    )
+                }
+            }
+        }
 
 
+    }
+}
 
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    AppTheme {
+        MainScreen()
+    }
 }
 
 @Composable
@@ -76,14 +133,19 @@ fun Activity(modifier: Modifier = Modifier) {
                     waveFrequency = frequency,
                     waveSteps = steps,
                     phaseShiftDuration = phaseShiftDuration,
-                    amplitudeDuration = amplitudeDuration
+                    amplitudeDuration = amplitudeDuration,
+                    isCharging = true
                 )
             }
         }
 
         Column(modifier = Modifier.weight(1f)) {
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Progress", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Progress",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = progress,
                     onValueChange = { progress = it }
@@ -91,7 +153,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Min Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Min Amplitude",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = minAmplitude,
                     onValueChange = { minAmplitude = it },
@@ -100,7 +166,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Max Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Max Amplitude",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = maxAmplitude,
                     onValueChange = { maxAmplitude = it },
@@ -109,7 +179,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Frequency", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Frequency",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = frequency.toFloat(),
                     onValueChange = { frequency = it.toInt() },
@@ -118,7 +192,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Steps", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Steps",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = steps.toFloat(),
                     onValueChange = { steps = it.toInt() },
@@ -127,7 +205,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("PhaseShift Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "PhaseShift Duration",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = phaseShiftDuration.toFloat(),
                     onValueChange = { phaseShiftDuration = it.toInt() },
@@ -136,7 +218,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Amplitude Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Amplitude Duration",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Slider(
                     value = amplitudeDuration.toFloat(),
                     onValueChange = { amplitudeDuration = it.toInt() },
@@ -145,7 +231,11 @@ fun Activity(modifier: Modifier = Modifier) {
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text("Direction: Left ", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    "Direction: Left ",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
                 Switch(
                     direction == WaveDirection.RIGHT,
                     onCheckedChange = {
@@ -153,16 +243,20 @@ fun Activity(modifier: Modifier = Modifier) {
                             if (direction == WaveDirection.RIGHT) WaveDirection.LEFT
                             else WaveDirection.RIGHT
                     })
-                Text(" Right", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White)
+                Text(
+                    " Right",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        Activity()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    AppTheme {
+//        Activity()
+//    }
+//}

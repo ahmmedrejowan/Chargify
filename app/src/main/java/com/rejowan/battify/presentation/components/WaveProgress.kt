@@ -73,7 +73,8 @@ fun WaveProgress(
     waveFrequency: Int = 3,
     phaseShiftDuration: Int = 2000,
     amplitudeDuration: Int = 2000,
-    waveDirection: WaveDirection = WaveDirection.RIGHT
+    waveDirection: WaveDirection = WaveDirection.RIGHT,
+    isCharging: Boolean,
 ) {
     val path = remember { Path() } //reusing same path object to reduce object creation and gc calls
     val coroutineScope = rememberCoroutineScope()
@@ -152,7 +153,7 @@ fun WaveProgress(
 
 
             Column(
-                modifier = Modifier.offset(y = halfHeightDp)
+                modifier = Modifier.offset(y = halfHeightDp - 24.dp),
             )
             {
 
@@ -163,18 +164,17 @@ fun WaveProgress(
                 ) {
                     Text(
                         text = "${(progress * 100).toInt()}",
-                        style = MaterialTheme.typography.displayLarge
+                        style = MaterialTheme.typography.displayLarge.copy(fontSize = 32.sp),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = "%",
-                        style = MaterialTheme.typography.displaySmall.copy(fontSize = 16.sp)
+                        style = MaterialTheme.typography.displaySmall.copy(fontSize = 13.sp),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                 }
-
-
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Box(
                     modifier = Modifier.fillMaxWidth(),
@@ -193,17 +193,19 @@ fun WaveProgress(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_battery_not_charging),
+                                painter = if (isCharging) painterResource(id = R.drawable.ic_battery_charging) else painterResource(
+                                    id = R.drawable.ic_battery_not_charging
+                                ),
                                 contentDescription = "Discharging",
                                 tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(16.dp)
                             )
 
                             Spacer(modifier = Modifier.size(4.dp))
 
                             Text(
-                                text = "Charging",
-                                style = MaterialTheme.typography.labelSmall,
+                                text = if (isCharging) "Charging" else "Discharging",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
