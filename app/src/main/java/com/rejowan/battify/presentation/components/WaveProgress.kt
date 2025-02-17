@@ -74,7 +74,7 @@ fun WaveProgress(
     phaseShiftDuration: Int = 2000,
     amplitudeDuration: Int = 2000,
     waveDirection: WaveDirection = WaveDirection.RIGHT,
-    isCharging: Boolean,
+    isCharging: Boolean?,
 ) {
     val path = remember { Path() } //reusing same path object to reduce object creation and gc calls
     val coroutineScope = rememberCoroutineScope()
@@ -193,7 +193,7 @@ fun WaveProgress(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                painter = if (isCharging) painterResource(id = R.drawable.ic_battery_charging) else painterResource(
+                                painter = if (isCharging == true) painterResource(id = R.drawable.ic_battery_charging) else painterResource(
                                     id = R.drawable.ic_battery_not_charging
                                 ),
                                 contentDescription = "Discharging",
@@ -204,7 +204,7 @@ fun WaveProgress(
                             Spacer(modifier = Modifier.size(4.dp))
 
                             Text(
-                                text = if (isCharging) "Charging" else "Discharging",
+                                text = if (isCharging == true) "Charging" else "Discharging",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
                                 color = MaterialTheme.colorScheme.onSurface
                             )

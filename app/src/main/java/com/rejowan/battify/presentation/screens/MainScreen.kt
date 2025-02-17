@@ -8,18 +8,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -31,43 +36,63 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rejowan.battify.di.homeModule
 import com.rejowan.battify.presentation.components.WaveDirection
 import com.rejowan.battify.presentation.components.WaveProgress
 import com.rejowan.battify.ui.theme.AppTheme
+import com.rejowan.battify.vm.HomeViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.KoinApplication
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
-    var isCharging by remember { mutableStateOf(false) }
+    val isCharging = homeViewModel.isCharging.collectAsState()
+    val chargeLevel by homeViewModel.chargeLevel.collectAsState()
 
-    Scaffold(
-        topBar = {
-        }
-    ) { innerPadding ->
+    Scaffold(topBar = {
+        TopAppBar(
+            title = {
+                Text(text = "Battify")
+            },
+            actions = {
+                IconButton(onClick = {
+
+                }) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Settings"
+                    )
+                }
+            }
+        )
+
+    }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center
             ) {
                 Card(
                     modifier = Modifier
-                        .padding(24.dp)
-                        .size(200.dp)
+                        .size(250.dp)
+                        .aspectRatio(1f)
                         .align(Alignment.Center)
                         .clip(CircleShape)
                         .border(5.dp, Color.White, CircleShape)
                 ) {
                     WaveProgress(
-                        progress = 0.5f,
+                        progress = (chargeLevel?.toFloat()?.div(100)) ?: 0f,
                         modifier = Modifier.fillMaxSize(),
                         fillBrush = Brush.horizontalGradient(
                             listOf(
                                 MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
+                                if (isCharging.value == true) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
                             )
                         ),
                         waveDirection = WaveDirection.RIGHT,
@@ -76,10 +101,16 @@ fun MainScreen() {
                         waveSteps = 20,
                         phaseShiftDuration = 2000,
                         amplitudeDuration = 2000,
-                        isCharging = isCharging
+                        isCharging = isCharging.value
                     )
                 }
             }
+
+            Text(
+                text = "Battery Status: ${if (isCharging.value == true) "Charging" else "Not Charging"}",
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
 
 
@@ -90,9 +121,16 @@ fun MainScreen() {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    AppTheme {
-        MainScreen()
+
+    KoinApplication(application = {
+        modules(homeModule)
+    }) {
+        AppTheme {
+            MainScreen(homeViewModel = koinViewModel())
+        }
     }
+
+
 }
 
 @Composable
@@ -142,47 +180,32 @@ fun Activity(modifier: Modifier = Modifier) {
         Column(modifier = Modifier.weight(1f)) {
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Progress",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Progress", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                )
+                Slider(value = progress, onValueChange = { progress = it })
+            }
+
+            Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
+                Text(
+                    "Min Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
-                    value = progress,
-                    onValueChange = { progress = it }
+                    value = minAmplitude, onValueChange = { minAmplitude = it }, valueRange = 10f..40f
                 )
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Min Amplitude",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Max Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
-                    value = minAmplitude,
-                    onValueChange = { minAmplitude = it },
-                    valueRange = 10f..40f
+                    value = maxAmplitude, onValueChange = { maxAmplitude = it }, valueRange = 40f..80f
                 )
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Max Amplitude",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
-                )
-                Slider(
-                    value = maxAmplitude,
-                    onValueChange = { maxAmplitude = it },
-                    valueRange = 40f..80f
-                )
-            }
-
-            Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
-                Text(
-                    "Frequency",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Frequency", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
                     value = frequency.toFloat(),
@@ -193,9 +216,7 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Steps",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Steps", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
                     value = steps.toFloat(),
@@ -206,9 +227,7 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "PhaseShift Duration",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "PhaseShift Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
                     value = phaseShiftDuration.toFloat(),
@@ -219,9 +238,7 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Amplitude Duration",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Amplitude Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
                 Slider(
                     value = amplitudeDuration.toFloat(),
@@ -232,21 +249,14 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Direction: Left ",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    "Direction: Left ", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
-                Switch(
-                    direction == WaveDirection.RIGHT,
-                    onCheckedChange = {
-                        direction =
-                            if (direction == WaveDirection.RIGHT) WaveDirection.LEFT
-                            else WaveDirection.RIGHT
-                    })
+                Switch(direction == WaveDirection.RIGHT, onCheckedChange = {
+                    direction = if (direction == WaveDirection.RIGHT) WaveDirection.LEFT
+                    else WaveDirection.RIGHT
+                })
                 Text(
-                    " Right",
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    color = Color.White
+                    " Right", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
                 )
             }
         }

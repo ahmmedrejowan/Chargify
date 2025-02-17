@@ -60,4 +60,9 @@ dependencies {
     // google fonts
     implementation(libs.androidx.ui.text.google.fonts)
 
+    // koin compose
+    implementation("io.insert-koin:koin-androidx-compose:4.0.0")
+
+
+
 }
