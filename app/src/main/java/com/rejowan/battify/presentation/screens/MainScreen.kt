@@ -1,13 +1,17 @@
 package com.rejowan.battify.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -36,14 +41,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.rejowan.battify.R
 import com.rejowan.battify.di.homeModule
 import com.rejowan.battify.presentation.components.WaveDirection
 import com.rejowan.battify.presentation.components.WaveProgress
 import com.rejowan.battify.ui.theme.AppTheme
 import com.rejowan.battify.vm.HomeViewModel
+import com.rejowan.chart.charts.LineChart
+import com.rejowan.chart.data.Entry
+import com.rejowan.chart.data.LineData
+import com.rejowan.chart.data.LineDataSet
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
 
@@ -54,6 +68,7 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
     val isCharging = homeViewModel.isCharging.collectAsState()
     val chargeLevel by homeViewModel.chargeLevel.collectAsState()
+    val currentUsage by homeViewModel.currentUsage.collectAsState()
 
     Scaffold(topBar = {
         TopAppBar(
@@ -106,15 +121,185 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
                 }
             }
 
-            Text(
-                text = "Battery Status: ${if (isCharging.value == true) "Charging" else "Not Charging"}",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
+            Spacer(modifier = Modifier.size(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(end = 4.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+
+                    OutlinedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+
+                        }
+                    ) {
+
+                        CardTitle(
+                            title = "Current Usage",
+                            leadingIcon = R.drawable.ic_usage,
+                            trailingIcon = R.drawable.ic_arrow_right,
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .height(200.dp)
+                                .fillMaxWidth()
+
+                        ) {
+
+                            AndroidView(
+                                modifier = Modifier.fillMaxSize(),
+                                factory = { context ->
+                                    val chart = LineChart(context)
+                                    chart.animateXY(1500, 1500)
+                                    chart.legend.isEnabled = true
+                                    val data = LineData()
+                                    chart.data = data
+                                    chart
+                                },
+                                update = { chart ->
+                                    val lineData = chart.data
+
+                                    var set = lineData.getDataSetByIndex(0) as? LineDataSet
+                                    if (set == null) {
+                                        set = LineDataSet(mutableListOf(), "Usage").apply {
+                                            mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+                                            cubicIntensity = 0.2f
+                                            setDrawFilled(true)
+                                            setDrawCircles(false)
+                                            setDrawValues(false)
+                                            lineWidth = 2f
+                                            color = Color.White.toArgb()
+                                        }
+                                        lineData.addDataSet(set)
+                                    }
+
+                                    Log.e("Charge", "Entry Count: ${set.entryCount}")
+
+                                    val entry = Entry(set.entryCount.toFloat(), currentUsage ?: 0f)
+                                    set.addEntry(entry)
+
+                                    Log.e("Charge", "Entry Count: ${set.entryCount}")
+                                    Log.e("Charge", "Current Usage 2: $currentUsage")
+
+                                    if (set.entryCount > 15) {
+                                        set.removeEntry(0)  // Remove first entry
+                                        for (i in 0 until set.entryCount) {
+                                            val entry = set.getEntryForIndex(i)
+                                            entry.x = i.toFloat() // Re-align X values
+                                        }
+                                    }
+
+                                    lineData.notifyDataChanged()
+                                    chart.notifyDataSetChanged()
+                                    chart.invalidate()
+                                }
+                            )
+
+
+                            Log.e("Charge", "Current Usage 1: $currentUsage")
+
+                        }
+
+                    }
+
+
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+
+                    OutlinedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+
+                        }
+                    ) {
+                        CardTitle(
+                            title = "Temp",
+                            leadingIcon = R.drawable.ic_temp,
+                        )
+
+
+                    }
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+    }
+}
+
+@Composable
+fun CardTitle(
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp),
+    title: String = "",
+    leadingIcon: Int,
+    trailingIcon: Int? = null,
+    onClick: () -> Unit? = {}
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = leadingIcon),
+            contentDescription = "Usage",
+            modifier = Modifier
+                .padding(4.dp)
+                .size(18.dp)
+        )
+
+        Text(
+            text = title,
+            modifier = Modifier
+                .weight(1f)
+                .padding(4.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Start
+        )
+
+        trailingIcon?.let {
+            Icon(
+                painter = painterResource(id = trailingIcon),
+                contentDescription = "Arrow",
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(18.dp)
+                    .clickable {
+                        onClick()
+                    }
             )
         }
 
 
     }
+
 }
 
 
@@ -180,32 +365,44 @@ fun Activity(modifier: Modifier = Modifier) {
         Column(modifier = Modifier.weight(1f)) {
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Progress", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Progress",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(value = progress, onValueChange = { progress = it })
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Min Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Min Amplitude",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
-                    value = minAmplitude, onValueChange = { minAmplitude = it }, valueRange = 10f..40f
+                    value = minAmplitude,
+                    onValueChange = { minAmplitude = it },
+                    valueRange = 10f..40f
                 )
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Max Amplitude", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Max Amplitude",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
-                    value = maxAmplitude, onValueChange = { maxAmplitude = it }, valueRange = 40f..80f
+                    value = maxAmplitude,
+                    onValueChange = { maxAmplitude = it },
+                    valueRange = 40f..80f
                 )
             }
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Frequency", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Frequency",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
                     value = frequency.toFloat(),
@@ -216,7 +413,9 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Steps", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Steps",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
                     value = steps.toFloat(),
@@ -227,7 +426,9 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "PhaseShift Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "PhaseShift Duration",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
                     value = phaseShiftDuration.toFloat(),
@@ -238,7 +439,9 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Amplitude Duration", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Amplitude Duration",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Slider(
                     value = amplitudeDuration.toFloat(),
@@ -249,14 +452,18 @@ fun Activity(modifier: Modifier = Modifier) {
 
             Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
                 Text(
-                    "Direction: Left ", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    "Direction: Left ",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
                 Switch(direction == WaveDirection.RIGHT, onCheckedChange = {
                     direction = if (direction == WaveDirection.RIGHT) WaveDirection.LEFT
                     else WaveDirection.RIGHT
                 })
                 Text(
-                    " Right", modifier = Modifier.align(Alignment.CenterVertically), color = Color.White
+                    " Right",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    color = Color.White
                 )
             }
         }
