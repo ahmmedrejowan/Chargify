@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.abs
 
@@ -33,24 +34,21 @@ class HomeRepositoryImpl(private val context: Context) : HomeRepository {
         _chargeLevel.value = (DecimalFormat("#.##").format(batteryPct * 100)).toInt()
     }
 
-    override fun getCurrentUsage(): Flow<Float?> = flow {
+    override fun getCurrentUsage(): Flow<Float> = flow {
         while (true) {
-            var batteryCurrent = -batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toFloat()
+            val rawValue = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
 
-            val usage = if (batteryCurrent < 0) {
-                if (abs(batteryCurrent / 1000) < 1.0) {
-                    batteryCurrent *= 1000
-                }
-                DecimalFormat("#.##").format((batteryCurrent / 1000).toDouble()).toFloat()
+            val usage = if (abs(rawValue / 1000) < 1.0) {
+                rawValue * 1.0f
             } else {
-                if (abs(batteryCurrent) > 100000.0) {
-                    batteryCurrent /= 1000
-                }
-                DecimalFormat("#.##").format(batteryCurrent.toDouble()).toFloat()
+                rawValue / 1000.0f
             }
 
-            emit(usage)
-            delay(1000) // Poll every second
+            val formattedUsage = usage.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toFloat()
+            emit(formattedUsage)
+
+            delay(1000)
         }
     }
+
 }

@@ -43,8 +43,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -152,19 +155,34 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
                         Box(
                             modifier = Modifier
-                                .height(200.dp)
+                                .height(70.dp)
                                 .fillMaxWidth()
 
                         ) {
-
                             AndroidView(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(0.dp),
                                 factory = { context ->
                                     val chart = LineChart(context)
-                                    chart.animateXY(1500, 1500)
-                                    chart.legend.isEnabled = true
-                                    val data = LineData()
-                                    chart.data = data
+                                    chart.apply {
+                                        description.isEnabled = false
+                                        setPinchZoom(false)
+                                        setDrawGridBackground(false)
+                                        isDragEnabled = false
+                                        setScaleEnabled(false)
+                                        setTouchEnabled(false)
+
+                                        legend.isEnabled = false
+                                        xAxis.isEnabled = false
+                                        axisLeft.isEnabled = false
+                                        axisRight.isEnabled = false
+
+
+                                        animateXY(1000, 1000)
+
+                                    }
+                                    chart.data = LineData()
                                     chart
                                 },
                                 update = { chart ->
@@ -172,7 +190,7 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
                                     var set = lineData.getDataSetByIndex(0) as? LineDataSet
                                     if (set == null) {
-                                        set = LineDataSet(mutableListOf(), "Usage").apply {
+                                        set = LineDataSet(mutableListOf(), "").apply {
                                             mode = LineDataSet.Mode.HORIZONTAL_BEZIER
                                             cubicIntensity = 0.2f
                                             setDrawFilled(true)
@@ -184,19 +202,14 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
                                         lineData.addDataSet(set)
                                     }
 
-                                    Log.e("Charge", "Entry Count: ${set.entryCount}")
-
                                     val entry = Entry(set.entryCount.toFloat(), currentUsage ?: 0f)
                                     set.addEntry(entry)
 
-                                    Log.e("Charge", "Entry Count: ${set.entryCount}")
-                                    Log.e("Charge", "Current Usage 2: $currentUsage")
-
-                                    if (set.entryCount > 15) {
-                                        set.removeEntry(0)  // Remove first entry
+                                    if (set.entryCount > 10) {
+                                        set.removeEntry(0)
                                         for (i in 0 until set.entryCount) {
-                                            val entry = set.getEntryForIndex(i)
-                                            entry.x = i.toFloat() // Re-align X values
+                                            val entry1 = set.getEntryForIndex(i)
+                                            entry1.x = i.toFloat()
                                         }
                                     }
 
@@ -206,10 +219,27 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
                                 }
                             )
 
-
-                            Log.e("Charge", "Current Usage 1: $currentUsage")
+                            Log.e("CurrentUsage", "Current Usage: $currentUsage")
 
                         }
+
+                        Text(
+                            text = buildAnnotatedString {
+                                append("${currentUsage?.toInt() ?: 0} ")
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = MaterialTheme.typography.headlineLarge.fontSize * 0.5f,
+                                    )
+                                ) {
+                                    append("mA")
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign = TextAlign.Center
+                        )
+
 
                     }
 
