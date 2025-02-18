@@ -333,20 +333,20 @@ fun CardTitle(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-
-    KoinApplication(application = {
-        modules(homeModule)
-    }) {
-        AppTheme {
-            MainScreen(homeViewModel = koinViewModel())
-        }
-    }
-
-
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//
+//    KoinApplication(application = {
+//        modules(homeModule)
+//    }) {
+//        AppTheme {
+//            MainScreen(homeViewModel = koinViewModel())
+//        }
+//    }
+//
+//
+//}
 
 @Composable
 fun Activity(modifier: Modifier = Modifier) {
