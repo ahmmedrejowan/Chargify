@@ -1,14 +1,16 @@
 package com.rejowan.battify.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,28 +44,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.unit.sp
 import com.rejowan.battify.R
-import com.rejowan.battify.di.homeModule
 import com.rejowan.battify.presentation.components.WaveDirection
 import com.rejowan.battify.presentation.components.WaveProgress
-import com.rejowan.battify.ui.theme.AppTheme
+import com.rejowan.battify.presentation.components.home.LineChartView
 import com.rejowan.battify.vm.HomeViewModel
-import com.rejowan.chart.charts.LineChart
-import com.rejowan.chart.data.Entry
-import com.rejowan.chart.data.LineData
-import com.rejowan.chart.data.LineDataSet
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.KoinApplication
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +68,8 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
     val isCharging = homeViewModel.isCharging.collectAsState()
     val chargeLevel by homeViewModel.chargeLevel.collectAsState()
     val currentUsage by homeViewModel.currentUsage.collectAsState()
+    val batteryTemp by homeViewModel.batteryTemp.collectAsState()
+    val voltage by homeViewModel.voltage.collectAsState()
 
     Scaffold(topBar = {
         TopAppBar(
@@ -129,11 +127,13 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(IntrinsicSize.Max)
                     .padding(16.dp),
             ) {
 
                 Box(
                     modifier = Modifier
+                        .fillMaxHeight()
                         .weight(2f)
                         .padding(end = 4.dp)
                         .clip(MaterialTheme.shapes.medium)
@@ -141,104 +141,74 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
                 ) {
 
                     OutlinedCard(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
                         onClick = {
 
                         }
                     ) {
 
+                        Spacer(modifier = Modifier.height(4.dp))
+
+
                         CardTitle(
-                            title = "Current Usage",
+                            title = "Energy Flow",
                             leadingIcon = R.drawable.ic_usage,
                             trailingIcon = R.drawable.ic_arrow_right,
                         )
 
-                        Box(
+                        LineChartView(
                             modifier = Modifier
                                 .height(70.dp)
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            show = 0
+                        )
 
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            AndroidView(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(0.dp),
-                                factory = { context ->
-                                    val chart = LineChart(context)
-                                    chart.apply {
-                                        description.isEnabled = false
-                                        setPinchZoom(false)
-                                        setDrawGridBackground(false)
-                                        isDragEnabled = false
-                                        setScaleEnabled(false)
-                                        setTouchEnabled(false)
 
-                                        legend.isEnabled = false
-                                        xAxis.isEnabled = false
-                                        axisLeft.isEnabled = false
-                                        axisRight.isEnabled = false
+                            Box(Modifier.weight(1f)) { }
 
-
-                                        animateXY(1000, 1000)
-
-                                    }
-                                    chart.data = LineData()
-                                    chart
-                                },
-                                update = { chart ->
-                                    val lineData = chart.data
-
-                                    var set = lineData.getDataSetByIndex(0) as? LineDataSet
-                                    if (set == null) {
-                                        set = LineDataSet(mutableListOf(), "").apply {
-                                            mode = LineDataSet.Mode.HORIZONTAL_BEZIER
-                                            cubicIntensity = 0.2f
-                                            setDrawFilled(true)
-                                            setDrawCircles(false)
-                                            setDrawValues(false)
-                                            lineWidth = 2f
-                                            color = Color.White.toArgb()
+                            Box(
+                                Modifier.weight(2f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        append("${currentUsage?.toInt() ?: 0} ")
+                                        withStyle(
+                                            style = SpanStyle(
+                                                fontSize = MaterialTheme.typography.headlineLarge.fontSize * 0.5f,
+                                            )
+                                        ) {
+                                            append("mA")
                                         }
-                                        lineData.addDataSet(set)
-                                    }
+                                    },
+                                    modifier = Modifier,
+                                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
+                                    textAlign = TextAlign.Center
+                                )
 
-                                    val entry = Entry(set.entryCount.toFloat(), currentUsage ?: 0f)
-                                    set.addEntry(entry)
+                            }
 
-                                    if (set.entryCount > 10) {
-                                        set.removeEntry(0)
-                                        for (i in 0 until set.entryCount) {
-                                            val entry1 = set.getEntryForIndex(i)
-                                            entry1.x = i.toFloat()
-                                        }
-                                    }
+                            Box(
+                                Modifier.weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
 
-                                    lineData.notifyDataChanged()
-                                    chart.notifyDataSetChanged()
-                                    chart.invalidate()
-                                }
-                            )
-
-                            Log.e("CurrentUsage", "Current Usage: $currentUsage")
 
                         }
-
-                        Text(
-                            text = buildAnnotatedString {
-                                append("${currentUsage?.toInt() ?: 0} ")
-                                withStyle(
-                                    style = SpanStyle(
-                                        fontSize = MaterialTheme.typography.headlineLarge.fontSize * 0.5f,
-                                    )
-                                ) {
-                                    append("mA")
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            textAlign = TextAlign.Center
-                        )
 
 
                     }
@@ -246,24 +216,131 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
                 }
 
-                Box(
+
+                Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 4.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.surface)
                 ) {
 
-                    OutlinedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+
+                        OutlinedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+
+                            },
+                        ) {
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            CardTitle(
+                                title = "Temp",
+                                leadingIcon = R.drawable.ic_temp,
+                                trailingIcon = R.drawable.ic_arrow_right,
+                            )
+
+                            LineChartView(
+                                modifier = Modifier
+                                    .height(30.dp)
+                                    .fillMaxWidth(),
+                                show = 1
+                            )
+
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        append("${batteryTemp?.first ?: 0f} ")
+                                        withStyle(
+                                            style = SpanStyle(
+                                                fontSize = MaterialTheme.typography.headlineLarge.copy(
+                                                    fontSize = 22.sp
+                                                ).fontSize * 0.5f,
+                                                baselineShift = BaselineShift.Superscript
+                                            )
+                                        ) {
+                                            append("o")
+                                        }
+                                        withStyle(
+                                            style = SpanStyle(
+                                                fontSize = MaterialTheme.typography.headlineLarge.copy(
+                                                    fontSize = 22.sp
+                                                ).fontSize * 0.5f,
+                                            )
+                                        ) {
+                                            append("C")
+                                        }
+                                    },
+                                    modifier = Modifier,
+                                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 22.sp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
 
                         }
+
+
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        CardTitle(
-                            title = "Temp",
-                            leadingIcon = R.drawable.ic_temp,
-                        )
+
+                        OutlinedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+
+                            },
+                        ) {
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            CardTitle(
+                                title = "Volt",
+                                leadingIcon = R.drawable.ic_voltage,
+                                trailingIcon = R.drawable.ic_arrow_right,
+                            )
+
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        append("${voltage ?: 0f} ")
+                                        withStyle(
+                                            style = SpanStyle(
+                                                fontSize = MaterialTheme.typography.headlineLarge.copy(
+                                                    fontSize = 22.sp
+                                                ).fontSize * 0.5f,
+                                            )
+                                        ) {
+                                            append("V")
+                                        }
+                                    },
+                                    modifier = Modifier,
+                                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 22.sp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+
+                        }
 
 
                     }
@@ -285,7 +362,7 @@ fun MainScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 fun CardTitle(
     modifier: Modifier = Modifier
         .fillMaxWidth()
-        .padding(8.dp),
+        .padding(horizontal = 4.dp),
     title: String = "",
     leadingIcon: Int,
     trailingIcon: Int? = null,
@@ -299,18 +376,18 @@ fun CardTitle(
             painter = painterResource(id = leadingIcon),
             contentDescription = "Usage",
             modifier = Modifier
-                .padding(4.dp)
-                .size(18.dp)
+                .padding(horizontal = 4.dp)
+                .size(16.dp)
         )
 
         Text(
             text = title,
             modifier = Modifier
                 .weight(1f)
-                .padding(4.dp),
+                .padding(horizontal = 4.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
             textAlign = TextAlign.Start
         )
 
@@ -319,8 +396,8 @@ fun CardTitle(
                 painter = painterResource(id = trailingIcon),
                 contentDescription = "Arrow",
                 modifier = Modifier
-                    .padding(4.dp)
-                    .size(18.dp)
+                    .padding(horizontal = 4.dp)
+                    .size(16.dp)
                     .clickable {
                         onClick()
                     }

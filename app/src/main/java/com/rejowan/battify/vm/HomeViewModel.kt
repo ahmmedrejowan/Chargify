@@ -15,6 +15,8 @@ class HomeViewModel(private val repository: HomeRepository) : ViewModel() {
 
     val chargeLevel: StateFlow<Int?> = repository.chargeLevel
     val isCharging: StateFlow<Boolean?> = repository.isCharging
+    val batteryTemp: StateFlow<Pair<Float, Float>?> = repository.batterTemp
+    val voltage: StateFlow<Float?> = repository.voltage
 
     private val _currentUsage = repository.getCurrentUsage()
         .stateIn(viewModelScope, SharingStarted.Lazily, null)
