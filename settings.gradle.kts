@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Battify"
+rootProject.name = "Chargify"
 include(":app")

@@ -2,14 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.rejowan.battify"
+    namespace = "com.rejowan.chargify"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.rejowan.battify"
+        applicationId = "com.rejowan.chargify"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -36,6 +37,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -63,8 +65,26 @@ dependencies {
     // koin compose
     implementation(libs.koin.androidx.compose)
 
+    // charts
     implementation(libs.mpandroidchart.reworked)
 
+    // timber
+    implementation(libs.timber)
 
+    // navigation compose
+    implementation(libs.androidx.navigation.compose)
 
+    // splash screen
+    implementation(libs.androidx.splashscreen)
+
+    // room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // workmanager
+    implementation(libs.androidx.work.runtime)
+
+    // accompanist
+    implementation(libs.accompanist.drawablepainter)
 }

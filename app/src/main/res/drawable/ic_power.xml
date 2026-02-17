@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Lightning bolt / power icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11,21H9L10,15H5L13,3H15L14,9H19L11,21Z" />
+</vector>

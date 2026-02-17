@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr:*)",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(.gradlew assembleDebug:*)",
+      "WebSearch"
+    ]
+  }
+}
