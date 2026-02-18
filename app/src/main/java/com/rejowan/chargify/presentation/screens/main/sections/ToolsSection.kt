@@ -64,8 +64,8 @@ fun ToolsSection(
             route = "battery_tips"
         ),
         ToolItem(
-            title = "App Usage",
-            description = "See which apps use the most screen time. Requires usage access permission.",
+            title = "Screen Time",
+            description = "See which apps you spend the most time in. Requires usage access permission.",
             iconRes = R.drawable.ic_apps,
             accentColor = Color(0xFF9575CD),
             route = "app_usage"
@@ -106,7 +106,7 @@ fun ToolsSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // App Usage card (full width with more detail)
+        // Screen Time card (full width with more detail)
         FeaturedToolCard(
             tool = tools[3],
             onClick = { onToolClick(tools[3].route) }

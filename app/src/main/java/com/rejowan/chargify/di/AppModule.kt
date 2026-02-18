@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.rejowan.chargify.data.local.ChargifyDatabase
 import com.rejowan.chargify.data.preferences.AlarmPreferences
 import com.rejowan.chargify.data.preferences.AppPreferences
+import com.rejowan.chargify.data.preferences.ThemePreferences
 import com.rejowan.chargify.data.repository.AppUsageRepository
 import com.rejowan.chargify.data.repository.BatteryRepository
 import com.rejowan.chargify.data.repository.BatteryRepositoryImpl
@@ -30,6 +31,7 @@ val appModule = module {
     // Preferences
     single { AppPreferences(androidContext()) }
     single { AlarmPreferences(androidContext()) }
+    single { ThemePreferences(androidContext()) }
 
     // Repositories
     single { ChargingHistoryRepository(get()) }

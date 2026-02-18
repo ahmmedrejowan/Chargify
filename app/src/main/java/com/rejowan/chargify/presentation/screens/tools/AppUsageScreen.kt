@@ -82,7 +82,7 @@ fun AppUsageScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("App Usage") },
+                title = { Text("Screen Time") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -170,7 +170,7 @@ private fun PermissionRequiredContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "To show app usage statistics, Chargify needs permission to access usage data. This allows us to display which apps are using your battery.",
+            text = "To show screen time statistics, Chargify needs permission to access usage data. This allows us to display how much time you spend in each app.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -224,7 +224,7 @@ private fun UsageStatsContent(
 
             // Header
             Text(
-                text = "App Usage",
+                text = "Apps",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -499,7 +499,7 @@ private fun EmptyUsageState() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "No app usage data available for this day. Usage data may take some time to appear after granting permission.",
+            text = "No screen time data available for this day. Data may take some time to appear after granting permission.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)
