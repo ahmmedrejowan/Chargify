@@ -30,7 +30,7 @@ class AlarmPreferences(context: Context) {
 
     private fun loadSettings(): AlarmSettings {
         return AlarmSettings(
-            alarmsEnabled = prefs.getBoolean(KEY_ALARMS_ENABLED, true),
+            alarmsEnabled = prefs.getBoolean(KEY_ALARMS_ENABLED, false),
             fullChargeAlarmEnabled = prefs.getBoolean(KEY_FULL_CHARGE_ENABLED, false),
             fullChargeThreshold = prefs.getInt(KEY_FULL_CHARGE_THRESHOLD, 100),
             lowBatteryAlarmEnabled = prefs.getBoolean(KEY_LOW_BATTERY_ENABLED, false),

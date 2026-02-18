@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -139,7 +137,7 @@ fun OverviewSection(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Status badges row: Power Source + Charge Speed + Health
+        // Status badges row: Power Source + Charge Speed
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -166,22 +164,11 @@ fun OverviewSection(
                     }
                 )
             }
-
-            // Health badge
-            StatusBadge(
-                label = "Health: $healthText",
-                color = when (healthText) {
-                    "Good" -> MaterialTheme.colorScheme.tertiary
-                    "Overheat", "Over Voltage" -> Color(0xFFEF5350)
-                    "Cold" -> Color(0xFF64B5F6)
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Combined ETA + Capacity card — distinct style
+        // ETA to Full / Time Left card - full width
         val etaAccent = if (batteryState.isCharging) Color(0xFF4DD86C)
             else MaterialTheme.colorScheme.primary
         OutlinedCard(
@@ -190,7 +177,6 @@ fun OverviewSection(
                 .padding(horizontal = 16.dp)
         ) {
             Column {
-                // Gradient accent strip at top
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -204,14 +190,12 @@ fun OverviewSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // ETA / Time Left
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(44.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(etaAccent.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center
@@ -220,10 +204,10 @@ fun OverviewSection(
                             painter = painterResource(id = R.drawable.ic_time),
                             contentDescription = null,
                             tint = etaAccent,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = if (batteryState.isCharging) "ETA to Full" else "Time Left",
@@ -232,52 +216,46 @@ fun OverviewSection(
                         )
                         Text(
                             text = if (batteryState.isCharging) formattedEta else formattedTimeRemaining,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    // Vertical divider
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(vertical = 4.dp)
-                            .width(1.dp)
-                            .background(MaterialTheme.colorScheme.outlineVariant)
-                    )
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    // Capacity
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = "Capacity",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = batteryState.batteryCapacityMah?.let { "$it mAh" } ?: "N/A",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_capacity),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(22.dp)
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1
                         )
                     }
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Capacity + Health cards row
+        val healthColor = when (healthText) {
+            "Good" -> Color(0xFF4DD86C)
+            "Overheat", "Over Voltage" -> Color(0xFFEF5350)
+            "Cold" -> Color(0xFF64B5F6)
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            MetricIconCard(
+                label = "Capacity",
+                value = batteryState.batteryCapacityMah?.toString() ?: "N/A",
+                unit = if (batteryState.batteryCapacityMah != null) "mAh" else "",
+                iconRes = R.drawable.ic_capacity,
+                accentColor = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.weight(1f)
+            )
+            MetricIconCard(
+                label = "Health",
+                value = healthText,
+                unit = "",
+                iconRes = R.drawable.ic_battery_full,
+                accentColor = healthColor,
+                modifier = Modifier.weight(1f)
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))

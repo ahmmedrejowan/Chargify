@@ -35,6 +35,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,21 @@ fun ChargingAlarmsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val context = LocalContext.current
+
+    // Check permission on screen entry - disable alarms if permission is revoked
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            // If permission is revoked but alarms are enabled, disable them
+            if (!hasPermission && settings.alarmsEnabled) {
+                viewModel.setAlarmsEnabled(false)
+            }
+        }
+    }
 
     // Track pending alarm action for after permission is granted
     var pendingAlarmAction by remember { mutableStateOf<(() -> Unit)?>(null) }

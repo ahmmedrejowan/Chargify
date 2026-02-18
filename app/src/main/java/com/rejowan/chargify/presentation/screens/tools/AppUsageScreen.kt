@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,18 +47,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.rejowan.chargify.R
 import com.rejowan.chargify.data.model.AppUsageInfo
+import com.rejowan.chargify.presentation.viewmodel.AppUsageUiState
 import com.rejowan.chargify.presentation.viewmodel.AppUsageViewModel
-import com.rejowan.chargify.presentation.viewmodel.TimeRange
+import com.rejowan.chargify.presentation.viewmodel.DayOption
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -192,7 +195,7 @@ private fun PermissionRequiredContent(
 @Composable
 private fun UsageStatsContent(
     modifier: Modifier = Modifier,
-    uiState: com.rejowan.chargify.presentation.viewmodel.AppUsageUiState,
+    uiState: AppUsageUiState,
     viewModel: AppUsageViewModel
 ) {
     LazyColumn(
@@ -205,15 +208,16 @@ private fun UsageStatsContent(
             TotalScreenTimeCard(
                 totalTime = uiState.totalScreenTime,
                 formattedTime = viewModel.formatTotalScreenTime(uiState.totalScreenTime),
-                timeRange = uiState.selectedTimeRange
+                dayLabel = viewModel.getSelectedDayFullLabel()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Time range selector
-            TimeRangeSelector(
-                selectedRange = uiState.selectedTimeRange,
-                onRangeSelected = { viewModel.setTimeRange(it) }
+            // Day selector - horizontal scrollable chips
+            DaySelector(
+                availableDays = uiState.availableDays,
+                selectedDay = uiState.selectedDay,
+                onDaySelected = { viewModel.selectDay(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -259,7 +263,7 @@ private fun UsageStatsContent(
 private fun TotalScreenTimeCard(
     totalTime: Long,
     formattedTime: String,
-    timeRange: TimeRange
+    dayLabel: String
 ) {
     OutlinedCard(
         modifier = Modifier
@@ -289,11 +293,7 @@ private fun TotalScreenTimeCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = when (timeRange) {
-                        TimeRange.TODAY -> "Today's Screen Time"
-                        TimeRange.LAST_24H -> "Last 24 Hours"
-                        TimeRange.LAST_7D -> "Last 7 Days"
-                    },
+                    text = "$dayLabel's Screen Time",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -321,28 +321,22 @@ private fun TotalScreenTimeCard(
 }
 
 @Composable
-private fun TimeRangeSelector(
-    selectedRange: TimeRange,
-    onRangeSelected: (TimeRange) -> Unit
+private fun DaySelector(
+    availableDays: List<DayOption>,
+    selectedDay: DayOption?,
+    onDaySelected: (DayOption) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp)
     ) {
-        TimeRange.entries.forEach { range ->
+        items(availableDays) { day ->
             FilterChip(
-                selected = selectedRange == range,
-                onClick = { onRangeSelected(range) },
+                selected = selectedDay == day,
+                onClick = { onDaySelected(day) },
                 label = {
-                    Text(
-                        text = when (range) {
-                            TimeRange.TODAY -> "Today"
-                            TimeRange.LAST_24H -> "24h"
-                            TimeRange.LAST_7D -> "7 Days"
-                        }
-                    )
+                    Text(text = day.label)
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = Color(0xFF6366F1),
@@ -505,7 +499,7 @@ private fun EmptyUsageState() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "No app usage data available for this time period. Usage data may take some time to appear after granting permission.",
+            text = "No app usage data available for this day. Usage data may take some time to appear after granting permission.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)

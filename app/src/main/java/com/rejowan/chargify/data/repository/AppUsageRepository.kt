@@ -12,6 +12,7 @@ import android.provider.Settings
 import com.rejowan.chargify.data.model.AppUsageInfo
 import timber.log.Timber
 import java.util.Calendar
+import java.util.Date
 
 class AppUsageRepository(private val context: Context) {
 
@@ -101,6 +102,26 @@ class AppUsageRepository(private val context: Context) {
 
     fun getWeekUsageStats(): List<AppUsageInfo> {
         return getAppUsageStats(7 * 24 * 60 * 60 * 1000L)
+    }
+
+    fun getUsageStatsForDay(date: Date): List<AppUsageInfo> {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        val startOfDay = calendar.timeInMillis
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        val endOfDay = calendar.timeInMillis
+
+        // For today, use current time as end
+        val now = System.currentTimeMillis()
+        val actualEndTime = if (endOfDay > now) now else endOfDay
+
+        return getAppUsageStatsInRange(startOfDay, actualEndTime)
     }
 
     private fun getAppUsageStatsInRange(startTime: Long, endTime: Long): List<AppUsageInfo> {
