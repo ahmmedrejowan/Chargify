@@ -104,32 +104,37 @@ fun AppUsageScreen(
             )
         }
     ) { innerPadding ->
-        if (!uiState.hasPermission) {
-            PermissionRequiredContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                onGrantPermission = {
-                    context.startActivity(viewModel.getUsageStatsSettingsIntent())
-                }
-            )
-        } else if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        when {
+            !uiState.hasPermission -> {
+                PermissionRequiredContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    onGrantPermission = {
+                        context.startActivity(viewModel.getUsageStatsSettingsIntent())
+                    }
+                )
             }
-        } else {
-            UsageStatsContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                uiState = uiState,
-                viewModel = viewModel
-            )
+            uiState.isLoading && uiState.appUsageList.isEmpty() -> {
+                // Only show full loading on initial load
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            else -> {
+                UsageStatsContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    uiState = uiState,
+                    viewModel = viewModel
+                )
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ data class DayOption(
 
 data class AppUsageUiState(
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val hasPermission: Boolean = false,
     val appUsageList: List<AppUsageInfo> = emptyList(),
     val totalScreenTime: Long = 0L,
@@ -49,15 +50,20 @@ class AppUsageViewModel(
     fun checkPermissionAndLoad() {
         viewModelScope.launch(Dispatchers.IO) {
             val hasPermission = appUsageRepository.hasUsageStatsPermission()
+            val currentState = _uiState.value
 
             // Generate available days (today + last 6 days = 7 days total)
             val days = generateAvailableDays()
 
-            _uiState.value = _uiState.value.copy(
+            // Only show loading if we don't have data yet
+            val isInitialLoad = currentState.appUsageList.isEmpty()
+
+            _uiState.value = currentState.copy(
                 hasPermission = hasPermission,
-                isLoading = hasPermission,
+                isLoading = isInitialLoad && hasPermission,
+                isRefreshing = !isInitialLoad && hasPermission,
                 availableDays = days,
-                selectedDay = days.firstOrNull()
+                selectedDay = currentState.selectedDay ?: days.firstOrNull()
             )
 
             if (hasPermission) {
@@ -101,7 +107,16 @@ class AppUsageViewModel(
 
     fun loadUsageStats() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            val currentState = _uiState.value
+            // Only show full loading on initial load (when no data yet)
+            // For subsequent loads (day changes), show refreshing state instead
+            val isInitialLoad = currentState.appUsageList.isEmpty()
+
+            _uiState.value = currentState.copy(
+                isLoading = isInitialLoad,
+                isRefreshing = !isInitialLoad,
+                error = null
+            )
 
             try {
                 val selectedDay = _uiState.value.selectedDay
@@ -115,12 +130,14 @@ class AppUsageViewModel(
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    isRefreshing = false,
                     appUsageList = stats,
                     totalScreenTime = totalTime
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    isRefreshing = false,
                     error = e.message
                 )
             }
