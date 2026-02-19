@@ -13,6 +13,7 @@ import com.rejowan.chargify.presentation.viewmodel.AppUsageViewModel
 import com.rejowan.chargify.presentation.viewmodel.ChargingAlarmsViewModel
 import com.rejowan.chargify.presentation.viewmodel.ChargingHistoryViewModel
 import com.rejowan.chargify.presentation.viewmodel.MainViewModel
+import com.rejowan.chargify.presentation.viewmodel.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -43,4 +44,5 @@ val appModule = module {
     viewModel { ChargingHistoryViewModel(get()) }
     viewModel { ChargingAlarmsViewModel(get()) }
     viewModel { AppUsageViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get()) }
 }

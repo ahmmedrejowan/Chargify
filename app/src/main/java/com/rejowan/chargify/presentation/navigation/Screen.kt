@@ -9,4 +9,5 @@ sealed class Screen(val route: String) {
     data object ChargingHistory : Screen("charging_history")
     data object BatteryTips : Screen("battery_tips")
     data object AppUsage : Screen("app_usage")
+    data object Settings : Screen("settings")
 }

@@ -114,7 +114,7 @@ fun ToolsSection(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        AboutCard()
+        AboutCard(onClick = { onToolClick("settings") })
 
         Spacer(modifier = Modifier.height(32.dp))
     }
@@ -267,12 +267,14 @@ private fun ToolCard(
 
 @Composable
 private fun AboutCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier
@@ -289,16 +291,17 @@ private fun AboutCard(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Version 1.0.0",
+                    text = "Version 1.0.0 • Settings",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Text(
-                text = "Made with ❤️",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }

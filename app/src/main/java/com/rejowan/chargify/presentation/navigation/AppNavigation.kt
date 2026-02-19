@@ -10,6 +10,7 @@ import com.rejowan.chargify.presentation.screens.tools.AppUsageScreen
 import com.rejowan.chargify.presentation.screens.tools.BatteryTipsScreen
 import com.rejowan.chargify.presentation.screens.tools.ChargingAlarmsScreen
 import com.rejowan.chargify.presentation.screens.tools.ChargingHistoryScreen
+import com.rejowan.chargify.presentation.screens.tools.SettingsScreen
 import com.rejowan.chargify.presentation.viewmodel.MainViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,6 +63,11 @@ fun AppNavigation(viewModel: MainViewModel = koinViewModel()) {
         }
         composable(Screen.AppUsage.route) {
             AppUsageScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
