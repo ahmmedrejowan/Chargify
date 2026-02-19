@@ -1,5 +1,6 @@
 package com.rejowan.chargify.presentation.components
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,7 +16,8 @@ import com.rejowan.chart.data.LineDataSet
 fun LineChartView(
     data: List<Float>,
     modifier: Modifier = Modifier,
-    lineColor: Color = Color.White,
+    lineColor: Color = MaterialTheme.colorScheme.primary,
+    fillColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
     showFill: Boolean = true
 ) {
     AndroidView(
@@ -51,6 +53,8 @@ fun LineChartView(
                     setDrawValues(false)
                     lineWidth = 2f
                     color = lineColor.toArgb()
+                    this.fillColor = fillColor.toArgb()
+                    fillAlpha = (fillColor.alpha * 255).toInt()
                 }
                 lineData.addDataSet(set)
             }

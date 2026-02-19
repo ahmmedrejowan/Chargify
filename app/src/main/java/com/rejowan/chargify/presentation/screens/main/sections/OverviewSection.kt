@@ -61,7 +61,10 @@ fun OverviewSection(
                     .size(250.dp)
                     .aspectRatio(1f)
                     .clip(CircleShape)
-                    .border(5.dp, Color.White, CircleShape)
+                    .border(5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                )
             ) {
                 WaveProgress(
                     progress = batteryState.chargeLevel / 100f,
@@ -93,18 +96,18 @@ fun OverviewSection(
                                 Text(
                                     text = "${batteryState.chargeLevel}",
                                     style = MaterialTheme.typography.displayLarge.copy(fontSize = 32.sp),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = Color.White
                                 )
                                 Text(
                                     text = "%",
                                     style = MaterialTheme.typography.displaySmall.copy(fontSize = 13.sp),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = Color.White
                                 )
                             }
 
                             OutlinedCard(
                                 colors = CardDefaults.elevatedCardColors().copy(
-                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
                                 )
                             ) {
                                 Row(

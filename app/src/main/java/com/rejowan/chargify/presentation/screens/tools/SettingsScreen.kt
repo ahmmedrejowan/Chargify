@@ -501,7 +501,7 @@ private fun ChangelogContent() {
 
         ChangelogVersionItem(
             version = BuildConfig.VERSION_NAME,
-            date = "2025-02-19",
+            date = "2026-02-19",
             changes = listOf(
                 "Initial release of Chargify",
                 "Real-time battery monitoring with level, temperature, and voltage",
@@ -623,7 +623,7 @@ private fun PrivacyPolicyContent() {
         )
 
         Text(
-            text = "Last updated: February 19, 2025",
+            text = "Last updated: February 19, 2026",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp)
@@ -961,7 +961,7 @@ private fun AppLicenseContent() {
         Text(
             text = """
 Chargify - Battery Monitor and Charging Tracker
-Copyright (C) 2025 K M Rejowan Ahmmed
+Copyright (C) 2026 K M Rejowan Ahmmed
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
