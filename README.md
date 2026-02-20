@@ -1,7 +1,7 @@
 # Chargify
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/logo.png" alt="Chargify Logo" width="120" height="120">
+  <img src="https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/logo.webp" alt="Chargify Logo" width="120" height="120">
 
 <h3>Advanced Battery Monitor & Charging Manager</h3>
 
@@ -50,8 +50,8 @@ Check out the [releases](https://github.com/ahmmedrejowan/Chargify/releases) sec
 
 | Shots                                                                                           | Shots                                                                                           | Shots                                                                                           |
 |-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| ![Screenshot 1](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot1.jpg) | ![Screenshot 2](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot2.jpg) | ![Screenshot 3](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot3.jpg) |
-| ![Screenshot 4](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot4.jpg) | ![Screenshot 5](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot5.jpg) | ![Screenshot 6](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot6.jpg) |
+| ![Screenshot 1](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot1.webp) | ![Screenshot 2](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot2.webp) | ![Screenshot 3](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot3.webp) |
+| ![Screenshot 4](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot4.webp) | ![Screenshot 5](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot5.webp) | ![Screenshot 6](https://raw.githubusercontent.com/ahmmedrejowan/Chargify/master/files/shot6.webp) |
 
 ---
 
