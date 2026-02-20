@@ -102,12 +102,15 @@ class PowerConnectionReceiver : BroadcastReceiver(), KoinComponent {
                 )
 
                 Timber.tag("ChargeHistory").d("SAVING SESSION: $previousStartLevel% -> $currentLevel%, duration=${duration/1000}s")
+                val pendingResult = goAsync()
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         chargingHistoryRepository.addSession(session)
                         Timber.tag("ChargeHistory").d("SESSION SAVED SUCCESSFULLY!")
                     } catch (e: Exception) {
                         Timber.tag("ChargeHistory").e(e, "FAILED TO SAVE SESSION!")
+                    } finally {
+                        pendingResult.finish()
                     }
                 }
             } else {
